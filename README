@@ -1,6 +1,9 @@
 Welcome!
 
-This is my solution to the programming challenge
+This is a RESTful backend service allowing a user to:
+• Upload a mood capture for a given user and location
+• Query their mood frequency distribution for a given user
+• Query the closest location where the user has been happy, given current location
 
 Instructions on running and using this project:
 -install dependencies:
@@ -71,7 +74,7 @@ Notes:
   UTM and latitude/longitude, but have done it this way for simplicity. Relatedly, I am also assuming incoming http request will include
   lat/lng values rather than being looked up/mediated by a third party API
 
-- I am limiting my time on this assignment to one day of work. With more time I would have liked to
+- With more time I would have liked to
   - Dockerize this application to avoid users having to install anything themselves
   - increase unit test coverage, in particular for "bad path" scenarios such as bad or missing input
   - Use a permanent datastore solution that can store and do operations on Geographic points using a spherical earth model, such as PostGis, and refactor
