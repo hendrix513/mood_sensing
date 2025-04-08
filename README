@@ -1,0 +1,81 @@
+Welcome!
+
+This is my solution to the programming challenge
+
+Instructions on running and using this project:
+-install dependencies:
+```
+pip install django
+pip install djangorestframework
+```
+- database file (db.sqlite3) comes preloaded with 3 users created
+- admin (superuser) login: username=admin, password=password
+  user 1 login: username=user1, password=SamplePW1
+  user 2 login: username=user2, password=SamplePW2
+
+- to run server:
+   python manage.py runserver
+
+- to run unit tests:
+    python manage.py test
+
+Running server can be accessed at 'localhost:8000'
+
+Design:
+ - this is a Python/Django app that uses Django's Rest Framework library for authentication
+ - data is stored in a sqllite database - database file is included here database file at db.sqlite3
+ - app contains one model, MoodUpload- each record contains reference to the uploading user, their uploaded mood,
+  and the location associated with that mood capture
+
+Endpoints (note: all mood capture endpoints expect HTTP Basic Auth headers):
+- GET '/admin'- can login with admin credentials in browserto access Django admin panel
+- POST '/mood_capture/capture_mood'
+
+   request body:
+   - lat and lng are required, must be float values or able to be casted to float, representing user location
+   - mood is required, representing user mood. must be one of "happy", "sad", "neutral" (case insensitive)
+   example call , using python:
+   ```
+   basic = HTTPBasicAuth('user1', 'SamplePW1')
+   ret = requests.post("http://localhost:8000/mood_capture/capture_mood",
+                    json={"lng": -120, "lat": 37, "mood": "happy"}, auth=basic)
+   ```
+   Returns empty body upon success
+
+- GET '/mood_capture/mood_frequency_distribution'
+
+   request params: empty
+   ```
+   basic = HTTPBasicAuth('user1', 'SamplePW1')
+   ret = requests.get("http://localhost:8000/mood_capture/mood_frequency_distribution", auth=basic)
+   ```
+   Returns dictionary where each key is a mood and the value is the count of mood uploads for requesting user, e.g. {"SAD": 3, "NEUTRAL": 1}
+
+- GET '/mood_capture/closest_happy_location'
+
+   request params:
+   - lat and lng are required, must be float values or able to be casted to float, representing location to query
+   ```
+   basic = HTTPBasicAuth('user1', 'SamplePW1')
+   ret = requests.get("http://localhost:8000/mood_capture/closest_happy_location", auth=basic)
+   ```
+   Returns dictionary of form {"lat": (lat of closest location in which requesting user has uploaded being happy),
+                               "lng": (lng of closest location in which requesting user has uploaded being happy),
+                or None if there has not been a "happy" mood capture upload for requesting user
+
+Notes:
+- I am assuming a very crude model for representing user location
+  and distances between locations, in which "lat" and "lng" essentially represent worldwide X and Y
+  coordinates and distance between two pairs of coordinates is calculated by Pythagorean distance.
+  In reality I believe a service like this would use a more sophisticated system of coordinate storage/translation between, say,
+  UTM and latitude/longitude, but have done it this way for simplicity. Relatedly, I am also assuming incoming http request will include
+  lat/lng values rather than being looked up/mediated by a third party API
+
+- I am limiting my time on this assignment to one day of work. With more time I would have liked to
+  - Dockerize this application to avoid users having to install anything themselves
+  - increase unit test coverage, in particular for "bad path" scenarios such as bad or missing input
+  - Use a permanent datastore solution that can store and do operations on Geographic points using a spherical earth model, such as PostGis, and refactor
+    views and models to use this instead of storing lat and lng as separate values and calculating distance by Pythagorean theorem
+  - include a user interface with project
+
+
